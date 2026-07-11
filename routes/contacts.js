@@ -1,42 +1,12 @@
 const express = require("express");
-const { ObjectId } = require("mongodb");
-const mongodb = require("../db/connect");
-
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  try {
-    const db = mongodb.getDb();
+const contactsController = require("../controllers/contacts");
 
-    const contacts = await db
-      .collection("contacts")
-      .find()
-      .toArray();
-
-    res.status(200).json(contacts);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-router.get("/:id", async (req, res) => {
-  try {
-    const id = new ObjectId(req.params.id);
-
-    const db = mongodb.getDb();
-
-    const contact = await db
-      .collection("contacts")
-      .findOne({ _id: id });
-
-    if (!contact) {
-      return res.status(404).json({ message: "Contact not found" });
-    }
-
-    res.status(200).json(contact);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+router.get("/", contactsController.getAll);
+router.get("/:id", contactsController.getSingle);
+router.post("/", contactsController.createContact);
+router.put("/:id", contactsController.updateContact);
+router.delete("/:id", contactsController.deleteContact);
 
 module.exports = router;
